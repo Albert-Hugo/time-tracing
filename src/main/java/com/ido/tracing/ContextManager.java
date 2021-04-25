@@ -17,6 +17,7 @@ public class ContextManager {
 
     public static void init() {
         CallingContext start = new CallingContext();
+        start.root = true;
         threadLocal.set(start);
     }
 
