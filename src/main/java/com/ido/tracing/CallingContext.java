@@ -13,12 +13,34 @@ public class CallingContext {
     @JsonIgnore
     public CallingContext parent;
     public LinkedList<CallingContext> childContexts = new LinkedList<>();
+    @JsonIgnore
     public long start;
+    @JsonIgnore
     public long end;
     public long consumeTime;
     public String method;
     public String callingMethod;
     public int depth;
+
+    public CallingContext(String method, String classNamePrefix) {
+        this.start = System.currentTimeMillis();
+        StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
+        this.depth = stackTraceElements.length;
+        this.method = method;
+        boolean haveIgnoreCurrentMethod = false;
+        for (int i = 0; i < stackTraceElements.length; i++) {
+            StackTraceElement s = stackTraceElements[i];
+            if (s.getClassName().startsWith(classNamePrefix)) {
+                if (!haveIgnoreCurrentMethod) {
+                    haveIgnoreCurrentMethod = true;
+                } else {
+                    this.callingMethod = s.getMethodName();
+                }
+            }
+
+        }
+    }
+
 
     public CallingContext() {
         this.start = System.currentTimeMillis();
@@ -51,7 +73,8 @@ public class CallingContext {
     }
 
 
-    public static void startContext(CallingContext callingContext) {
+    public void startContext() {
+        CallingContext callingContext = this;
         CallingContext start = ContextManager.getStartContext();
         if (start.childContexts.isEmpty()) {
             callingContext.parent = start;
@@ -79,7 +102,8 @@ public class CallingContext {
         current.parent.childContexts.addLast(callingContext);
     }
 
-    public static void endContext(CallingContext callingContext) {
+    public void endContext() {
+        CallingContext callingContext = this;
         callingContext.end = System.currentTimeMillis();
         callingContext.consumeTime = callingContext.end - callingContext.start;
 

@@ -11,41 +11,41 @@ public class TestCallingContext {
 
     public static void a() {
         CallingContext c = new CallingContext();
-        CallingContext.startContext(c);
+        c.startContext();
         System.out.println("a");
         a1();
         b();
-        CallingContext.endContext(c);
+        c.endContext();
     }
 
     public static void a1() {
         CallingContext c = new CallingContext();
-        CallingContext.startContext(c);
+        c.startContext();
         System.out.println("a1");
-        CallingContext.endContext(c);
+        c.endContext();
     }
 
     public static void b() {
         CallingContext c = new CallingContext();
-        CallingContext.startContext(c);
+        c.startContext();
         System.out.println("b");
         c();
-        CallingContext.endContext(c);
+        c.endContext();
     }
 
     public static void c() {
         CallingContext c = new CallingContext();
-        CallingContext.startContext(c);
+        c.startContext();
         System.out.println("c");
         d();
-        CallingContext.endContext(c);
+        c.endContext();
     }
 
     public static void d() {
         CallingContext c = new CallingContext();
-        CallingContext.startContext(c);
+        c.startContext();
         System.out.println("d");
-        CallingContext.endContext(c);
+        c.endContext();
     }
 
     static {
