@@ -1,8 +1,6 @@
 package com.ido.tracing;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.LinkedList;
 
@@ -11,13 +9,6 @@ import java.util.LinkedList;
  * @date 2021/4/23 17:49
  */
 public class CallingContext {
-    private static ThreadLocal<CallingContext> threadLocal = new ThreadLocal<>();
-
-
-    public static void print() throws JsonProcessingException {
-        ObjectMapper o = new ObjectMapper();
-        System.out.println(o.writeValueAsString(threadLocal.get()));
-    }
 
     @JsonIgnore
     public CallingContext parent;
@@ -48,11 +39,6 @@ public class CallingContext {
         }
     }
 
-    public static void init() {
-        CallingContext start = new CallingContext();
-        threadLocal.set(start);
-    }
-
     @Override
     public String toString() {
         return "CallingContext{" +
@@ -66,11 +52,7 @@ public class CallingContext {
 
 
     public static void startContext(CallingContext callingContext) {
-        CallingContext start = threadLocal.get();
-//        if(start == null){
-//            start = new CallingContext();
-//            threadLocal.set(start);
-//        }
+        CallingContext start = ContextManager.getStartContext();
         if (start.childContexts.isEmpty()) {
             callingContext.parent = start;
             start.childContexts.addLast(callingContext);
@@ -84,16 +66,17 @@ public class CallingContext {
             return;
         }
 
-        while (start.depth != callingContext.depth) {
-            if (start.childContexts.isEmpty()) {
-                callingContext.parent = start;
-                start.childContexts.addLast(callingContext);
+        CallingContext current = start;
+        while (current.depth != callingContext.depth) {
+            if (current.childContexts.isEmpty()) {
+                callingContext.parent = current;
+                current.childContexts.addLast(callingContext);
                 return;
             }
-            start = start.childContexts.getLast();
+            current = current.childContexts.getLast();
         }
-        callingContext.parent = start.parent;
-        start.parent.childContexts.addLast(callingContext);
+        callingContext.parent = current.parent;
+        current.parent.childContexts.addLast(callingContext);
     }
 
     public static void endContext(CallingContext callingContext) {

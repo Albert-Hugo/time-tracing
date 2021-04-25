@@ -49,12 +49,13 @@ public class TestCallingContext {
     }
 
     static {
-        CallingContext.init();
+        ContextManager.init();
     }
 
     public static void main(String[] args) throws JsonProcessingException {
         a();
-        CallingContext.print();
+        ContextManager.print();
+        ContextManager.cleanContext();
 
     }
 }
